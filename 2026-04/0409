@@ -1,0 +1,570 @@
+## 7. continue, break
+
+- continue
+
+```jsx
+for (let i = 1; i <= 10; i++) {
+    if (i % 2 === 0) {
+        continue; // i가 짝수라면 아래 코드를 건너뛰고 다음 반복으로 이동
+    }
+    console.log(`홀수: ${i}`);
+}
+
+// continue를 사용한 중첩 반복문
+for (let i = 1; i <= 3; i++) {
+    for (let j = 1; j <= 3; j++) {
+        if (j === 2) {
+            continue; //j가 2일 때 현재 반복을 건너뜀
+        }
+        console.log(`i: ${i}, j: ${j}`);
+    }
+}
+```
+
+- break
+
+```jsx
+for (let i = 1; i <= 10; i++) {
+    if (i > 5) {
+        break;
+    }
+    console.log(`현재값: ${i}`);
+}
+```
+
+- for…of (ES6에서 도입) : 배열이나 이터러블 객체의 각 요소를 순회하는 데 사용
+
+```jsx
+const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+for (const number of numbers) {
+    if (number % 2 === 0) {
+        continue;
+    }
+    console.log(`홀수: ${number}`);
+}
+```
+
+---
+
+# 📝Object
+
+- 객체
+    - 자바스크립트는 객체 기반 프로그래밍 언어로 원시 값을 제외한 나머지(함수, 배열, 정규 표현식 등)은 모두 객체이다.
+    - 객체는 0개 이상의 프로퍼티로 구성 된 집합이며 프로퍼티는 키(key)와 값(value)으로 구성된다.
+    - 자바스크립트에서 사용할 수 있는 모든 값은 프로퍼티 값이 될 수 있다.
+    - 프로퍼티 값이 함수일 경우 method 라고 부른다.
+    - 프로퍼티 정의하지 않을 시 빈 객체 생성
+
+```jsx
+// 객체 생성 - 객체 리터럴 {}
+const student = {
+    // 키-값 쌍으로 구성 된 프로퍼티
+    // 프로퍼티: 객체의 상태를 나타내는 값(data)
+    name: "김판다",
+    age: 3,
+    // 메서드 : 프로퍼티(상태 데이터)를 참조하고 조작할 수 있는 동작
+    getInfo: function () {
+        return `${this.name}(은)는 ${this.age}세 입니다.`
+    }
+}
+
+console.log(typeof student); //object
+console.log(student); //{ name: '김판다', age: 3, getInfo: [Function: getInfo] }
+```
+
+- 프로퍼티 접근
+
+```jsx
+const dog = {
+    name: '뽀삐',
+    eat: function (food) {
+        console.log(`${this.name}는 ${food}를 맛있게 먹어요.`);
+    }
+}
+```
+
+- 마침표 표기법
+
+```jsx
+console.log(dog.name);
+dog.eat('고구마');
+```
+
+- 대괄호 표기법
+    - 프로퍼티 키가 식별자 네이밍 규칙을 준수하지 않는 이름일 경우 반드시 대괄호 표기법을 사용
+
+```jsx
+console.log(dog['name']);
+dog['eat']('감자');
+
+const obj = {
+    'dash-key' : 'dash-value'
+}
+
+//console.log(obj.dash-key); // 컴퓨터가 obj.dash 빼기 key로 오해함
+console.log(obj["dash-key"]);
+```
+
+- key가 변수에 담겨 있을 때
+
+```jsx
+const prop = 'name';
+// dog.prop 이라고 쓰면 'prop'이라는 키를 찾으려고함
+console.log(dog.prop); // undefined
+// 우리가 원하는 'name'키의 값을 가져오려면 반드시 대괄호를 써야 함.
+console.log(dog[prop]); // dog['name']와 같음
+```
+
+- 이미 존재하는 프로퍼티에 값을 할당하면 값 갱신
+
+```jsx
+dog.name = '두부';
+console.log(dog.name);
+```
+
+- 프로퍼티 추가, 삭제
+
+```jsx
+// 추가
+dog.age = 3;
+console.log(dog);
+
+// 삭제
+delete dog.age;
+console.log(dog);
+
+// 완전한 재할당은 금지(const)
+// dog = { name: '초코'}; 객체 안에 프로퍼티 추가삭제가능하지만 완전히 재할당은 불가
+```
+
+- 프로퍼티 존재 확인(in 연산자) -boolean 값으로 반환
+
+```jsx
+console.log('name' in dog); //true
+console.log('age' in dog); //false
+```
+
+- 객체 순회
+
+```jsx
+for (const key in dog) {
+    console.log(`키: ${key}`);
+    console.log(`값: ${dog[key]}`);
+}
+```
+
+---
+
+## 📝Function
+
+- 함수 기본구조
+
+```jsx
+function calculateArea(width, height) { // 매개변수(parameter)
+    const area = width * height;
+    return area;        // 반환값 = 호출한 곳으로 값 전달
+}
+```
+
+- 함수 호출
+
+```jsx
+const result = calculateArea(10, 20); // 인자(argument) 전달
+console.log(result);
+```
+
+- 함수 표현식
+    - 객체 타입의 값으로 값의 성질을 갖는 객체를 일급 객체
+    - 함수 리터럴로 생성한 함수 객체를 변수에 할당할 수 있음
+
+```jsx
+const hi = function (name) {
+    return `${name}님 안녕하세요!`
+}
+
+// 식별자로 함수 호출
+console.log(hi('판다'));
+
+const calc = function add(a, b) {
+    return a + b;
+}
+
+// 함수 호출은 식별자로 이루어진다. 함수명으로 호출은 불가능하다.
+// console.log(add(10, 20)); //ReferenceError: add is not defined
+console.log(calc(10, 20));
+```
+
+- 함수 호이스팅
+    - 함수 선언문은 런타임 이전에 자바스크립트 엔진에 의해 먼저 실행
+    - 함수 선언문 이전에 함수를 참조하거나 호출 가능
+    - 함수 표현식은 런타임에 할당되게 때문에 반드시 함수 표현식 이후에 참조 또는 호출해야 함
+
+---
+
+### ✏️Parameter, Argument (매개변수, 인자)
+
+- 매개변수의 유효범위
+
+```jsx
+function greet(name) {
+    console.log(name);
+    console.log(arguments);
+    return `${name}님 안녕하세요~`;
+}
+
+//console.log(name); //ReferenceError : name은 함수 내부(지역 스코프)에서만 살아있다.
+```
+
+- 인수 개수 불일치
+
+```jsx
+console.log(greet('판다'));
+console.log(greet()); // 인수 없으면 undefined 할당(에러 안남)
+console.log(greet('판다', '코알라')); // 첫 번째 인자만 사용됨, 두 번째 인자는 arguments에 보관됨
+
+//[Arguments] { '0': '판다' }
+//[Arguments] {}
+//[Arguments] { '0': '판다', '1': '코알라' }
+```
+
+- 매개변수 기본값 활용
+
+```jsx
+function hi(name='아무개') {
+    // 인수가 전달되지 않거나 undefined가 들어오면 '아무개'가 기본으로 쓰임
+    return `${name} 안녕?`;
+}
+
+console.log(hi());
+console.log(hi('몽키'));
+```
+
+- 반환문
+
+```jsx
+function add(a, b) {
+    return a + b;
+}
+
+const result = add(10, 20);
+console.log(result);
+```
+
+- 함수의 종료
+
+```jsx
+function sayHello(name) {
+    return `${name}님 안녕하세요~`;
+
+    //console.log('여기는 출력이 안된다');
+}
+```
+
+- 반환값의 생략 : return 생략해도 undefined 반환
+
+```jsx
+function noReturn() {
+    console.log('함수 호출됨');
+    // return; 생략해도 undefined 반환
+}
+
+noReturn();
+console.log(noReturn()); 
+// return 값을 명시하지 않거나 생략하면 undefined 반환
+
+```
+
+- 조기 종료
+
+```jsx
+function registerUser(nickname) {
+    if(nickname.length < 2) {
+        console.log('닉네임이 너무 짧습니다.');
+        return; // 여기서 함수를 끝냄
+    }
+    if(nickname === 'admin') {
+        console.log('사용 불가 닉네임');
+        return;
+    }
+    console.log(`${nickname}님 환영합니다.`);
+    // ...실제 회원가입 처리 로직
+}
+```
+
+---
+
+- 함수 : 일급 객체, 자바스크립트에서 함수는 ‘값(value)’으로 취급될 수 있다.
+    1. 변수에 담을 수 있음 (함수 표현식)
+    
+    ```jsx
+    const sayHello = function() {
+        console.log('안녕!!');
+    }
+    ```
+    
+    1. 객체의 속성으로 담을 수 있음 (메서드)
+    
+    ```jsx
+    const myObject = {
+        sayHi: function() {
+            console.log('반가와~');
+        },
+        // 단축해서 사용 가능
+        sayBye() {
+            console.log('잘가~');
+        }
+    };
+    ```
+    
+    1. 함수의 인자(argument)로 전달 가능
+    2. 함수의 결과(return value)로 반환될 수 있음
+    
+    ```jsx
+    function manager(task, count) {
+        console.log('매니저가 업무를 지시합니다.');
+        for (let i = 0; i < count; i++) {
+            task();
+        }
+    
+        // 함수를 결과물로 반환
+        return function() {
+            console.log('모든 업무가 완료되었습니다.');
+        }
+    }
+    
+    const report = manager(sayHello, 3);
+    
+    // manager 함수가 반환한 새로운 함수 실행
+    report();
+    ```
+    
+
+---
+
+- 콜백 함수 : 다른 함수의 '재료(인자)'로 전달되어, 그 함수의 실행 시점을 제어하는 함수
+- 고차 함수  : 함수를 인자로 받는 함수
+
+```jsx
+function calculator(calculatorCallback, a, b) {
+    console.log('계산을 시작합니다..');
+    const result = calculatorCallback(a, b);
+    return result;
+}
+
+// 콜백 함수
+function add(a, b) {
+    return a + b;
+}
+
+function multiply(a, b) {
+    return a * b;
+}
+
+const addResult = calculator(add, 10, 5);
+console.log(addResult);
+
+const multiplyResult = calculator(multiply, 10, 5);
+console.log(multiplyResult);
+```
+
+```jsx
+const numbers = [3, 10, 1, 4, 2];
+
+numbers.sort(function(a, b) {
+    // a - b가 음수면 a가 앞으로, 양수면 b가 앞으로 정렬된다.
+    // return a - b; // 오름차순 정렬
+    return b - a; // 내림차순 정렬
+});
+
+// 화살표 함수
+numbers.sort((a, b) => a - b);
+
+const a = numbers.sort();
+console.log(a);
+```
+
+---
+
+- 즉시 실행 함수(IIFE)
+    - 함수를 정의하자마자 딱 한 번만 실행
+    - 목적 : 전역 오염 방지 + 변수 보호
+
+```jsx
+(function() {
+    let secretMessage = '이 변수는 이 안에서만 존재한다'; // 함수 안에서만 존재
+    console.log('즉시 실행 함수가 실행되었습니다.');
+    console.log(secretMessage);
+})();
+
+// (function() {}) ();
+
+// console.log(secretMessage); //ReferenceError: secretMessage is not defined
+
+const result = (function(name) {
+    let a = 10;
+    let b = 20;
+    console.log(name);
+    return a + b;
+}) ('판다'); 
+
+console.log(result); 
+```
+
+---
+
+- 재귀 함수
+    - 함수가 자기 자신을 다시 호출하는 방식
+    - 반복되는 작업을 위해 사용하며, 반드시 '종료 조건'이 있어야 한다.
+
+```jsx
+// factorial ( 5! = 5 * 4 * 3 * 2 * 1)
+function factorialWithLoop(n) {
+    let result = 1;
+    for (let i =n; i > 1; i--) {
+        result *= i;
+    }
+    return result;
+}
+
+console.log(factorialWithLoop(5));
+
+function factorial(n) {
+    if (n <= 1) {
+        return 1;
+    }
+    return n * factorial(n-1);
+}
+
+console.log(factorial(5));
+```
+
+---
+
+### ✏️var 키워드의 문제점
+
+1. 변수 중복 선언 허용
+
+```jsx
+var msg = '안녕하세요';
+console.log(msg);
+
+var msg = '안녕히 가세요';
+console.log(msg); // 마지막 값이 덮어써짐 -> 실수로 다른 코드 변수 덮어쓰면 버그 발생
+
+```
+
+1. 함수 레벨 스코프
+
+```jsx
+var i = 100; // 중요한 전역 변수
+
+for (var i = 0; i < 5; i++) {
+    console.log(`for문 내부의 i:${i}`);
+}
+
+// for문의 i가 전역 변수 i를 덮어씀(오염)
+console.log(`for문 바깥의 i:${i}`); //5
+```
+
+1. 변수 호이스팅 → 가독성 및 예측 가능성 저하
+
+```jsx
+console.log(test);
+
+test = '반갑습니다';
+console.log(test);
+
+var test; // 선언이 가장 위로 끌어올려진 것처럼 동작함
+```
+
+---
+
+### ✏️let
+
+1. 변수 중복 선언 금지
+
+```jsx
+let msg = '안녕하세요';
+//let msg = '안녕히 가세요.'; //SyntaxError: Identifier 'msg' has already been declared
+```
+
+1. 블록 레벨 스코프 → 변수 오염 방지
+
+```jsx
+let i = 100;
+
+for (let i = 0; i < 5; i++) {
+    console.log(`for문 내부 i:${i}`);
+}
+
+console.log(`for문 외부 i:${i}`);  //100 유지됨
+```
+
+1. 변수 호이스팅이 일어나지 않는 것처럼 동작
+
+```jsx
+//test = '반갑습니다.'; //ReferenceError: Cannot access 'test' before initialization
+
+let test;
+test = '반갑습니다';
+console.log(test);
+```
+
+### ✏️const
+
+1. 선언과 동시에 반드시 초기화 해야 함
+
+```jsx
+//const greeting;
+const greeting = '안녕하세요';
+```
+
+1. 재할당 금지
+
+```jsx
+//greeting = '안녕'; //TypeError: Assignment to constant variable.
+```
+
+1. 다른 객체로 바꾸는 것 불가능 (단, 객체 내부의 ‘프로퍼티’는 변경 가능)
+
+```jsx
+const student = {
+    name: '홍길동',
+    age: 20
+};
+
+//student = { name: '유관순', age: 16};//TypeError: Assignment to constant variable.
+
+// 하지만 객체 내부의 '프로퍼티'를 변경하는 것은 가능하다.
+student.name = '유관순';
+console.log(student);
+```
+
+- 스코프
+
+```jsx
+let globalVar = '전역 변수'; // 가장 넓은 스코프
+
+if (true) {
+    let blockVar = '블록 스코프 변수'; // if문 안에서만 유효
+
+    function sayHi() {
+        let functionVar = '함수 스코프 변수'; // sayHi 함수 안에서만 유효
+
+        // 가장 안쪽에서는 모든 상위 스코프의 변수에 접근할 수 있다.
+        console.log(globalVar);
+        console.log(blockVar);
+        console.log(functionVar);
+    }
+    sayHi();
+    // console.log(functionVar); // 함수 밖에서 접근 불가
+}
+//console.log(blockVar); // 블록 밖에서는 접근 불가
+```
+
+---
+
+1. 기본적으로 모든 변수는 const로 선언 (가장 안전)
+2. 값이 반드시 바뀌어야하는 변수에만 let을 사용
+3. var는 사용 X
