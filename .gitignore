@@ -1,0 +1,15 @@
+# IntelliJ
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# build 결과물
+/build/
+/out/
+/target/
+
+# 로그
+*.log
