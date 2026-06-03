@@ -15,18 +15,16 @@ import java.time.LocalDate;
 @Setter
 public class MemberDTO {
 
-    private int memberNo;
+    private Integer memberNo;
 
-    @NonNull
     @NotBlank
     @Size(min = 4, max = 20)
     private String id;
 
-    @NotNull
     @NotBlank
     private String name;
 
-    @NotNull
+    @NotBlank
     @Email
     private String email;
     private LocalDate joinedAt;

@@ -1,6 +1,8 @@
 package com.ohgiraffers.restapi.dto;
 
 import com.ohgiraffers.restapi.enums.RentalStatus;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,10 +17,13 @@ import java.time.LocalDate;
 @Setter
 public class RentalDTO {
 
-    private int rentalNo;
+    private Integer rentalNo;
+    @NotNull
     private int memberNo;
+    @NotNull
     private int bookNo;
+    private LocalDate rentedAt;
     private LocalDate dueDate;
-    private Local returnedAt;
+    private LocalDate returnedAt;
     private RentalStatus status;
 }

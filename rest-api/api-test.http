@@ -1,6 +1,54 @@
 ### 회원 전체 조회
 GET http://localhost:8080/api/v1/library/members
 
-### 회원 조회
+### 회원 조회 (이름)
+GET http://localhost:8080/api/v1/library/members?name=짱
+
+### 회원 조회 (회원번호)
 GET http://localhost:8080/api/v1/library/1
+
+### 회원 등록
+POST http://localhost:8080/api/v1/library/members
+Content-Type: application/json
+
+{
+  "id": "user06",
+  "name": "치이카와",
+  "email": "chikawa@daum.net"
+}
+
+### 도서 전체 조회
+GET http://localhost:8080/api/v1/library/books
+
+### 도서 조회 (타이틀)
+GET http://localhost:8080/api/v1/library/books?title=원
+
+### 도서 조회 (상태)
+GET http://localhost:8080/api/v1/library/books?status=AVAILABLE
+
+### 도서 단건 조회
+GET http://localhost:8080/api/v1/library/books/1
+
+### 도서 등록
+POST http://localhost:8080/api/v1/library/books
+Content-Type: application/json
+
+{
+  "title": "Spring REST API 입문",
+  "author": "오지라퍼",
+  "isbn": "979-11-1111-111-1",
+  "publishedAt": "2025-03-10"
+}
+
+### 도서 대여
+POST http://localhost:8080/api/v1/library/rentals
+Content-Type: application/json
+
+{
+  "memberNo":1,
+  "bookNo": 1
+}
+
+### 대여 단건 조회
+GET http://localhost:8080/api/v1/library/rentals/1
 
