@@ -4,12 +4,10 @@ import com.ohgiraffers.restapi.dto.BookDTO;
 import com.ohgiraffers.restapi.dto.MemberDTO;
 import com.ohgiraffers.restapi.dto.ResponseMessage;
 import com.ohgiraffers.restapi.enums.BookStatus;
+import com.ohgiraffers.restapi.exception.MemberNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -56,4 +54,23 @@ public class LibraryController {
 
         return ResponseEntity.ok(responseMessage);
     }
+
+    @GetMapping("/{memberNo}")
+    public ResponseEntity<ResponseMessage> findMemberByMemberNo(@PathVariable int memberNo) {
+        MemberDTO foundMember = memberList.stream()
+                .filter(m -> m.getMemberNo() == memberNo)
+                .findFirst()
+                .orElseThrow(() -> new MemberNotFoundException("찾으시는 회원번호가 존재하지 않습니다."));
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("member", foundMember);
+        ResponseMessage responseMessage = new ResponseMessage(HttpStatus.OK.value(), "회원 조회 성공", response);
+
+        return ResponseEntity.ok(responseMessage);
+    }
+//
+//    @PostMapping("/members")
+//    public ResponseEntity<ResponseMessage> createMember(@RequestBody MemberDTO member) {
+//
+//    }
 }
