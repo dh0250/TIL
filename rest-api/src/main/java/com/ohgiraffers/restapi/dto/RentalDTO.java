@@ -19,11 +19,12 @@ public class RentalDTO {
 
     private Integer rentalNo;
     @NotNull
-    private int memberNo;
+    private Integer memberNo;
     @NotNull
-    private int bookNo;
+    private Integer bookNo;
     private LocalDate rentedAt;
     private LocalDate dueDate;
     private LocalDate returnedAt;
     private RentalStatus status;
+    private boolean overdue;
 }

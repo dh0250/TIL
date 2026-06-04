@@ -21,4 +21,9 @@ public class ErrorResponse {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Map<String, String> errors;
 
+    public ErrorResponse(Integer status, String errorCode, String message) {
+        this.status = status;
+        this.errorCode = errorCode;
+        this.message = message;
+    }
 }
