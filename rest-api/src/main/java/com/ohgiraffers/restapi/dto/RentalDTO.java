@@ -1,5 +1,6 @@
 package com.ohgiraffers.restapi.dto;
 
+import com.ohgiraffers.restapi.enums.BookStatus;
 import com.ohgiraffers.restapi.enums.RentalStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,5 +27,10 @@ public class RentalDTO {
     private LocalDate dueDate;
     private LocalDate returnedAt;
     private RentalStatus status;
-    private boolean overdue;
+
+    public boolean isOverdue() {
+        return status == RentalStatus.RENTED
+                && dueDate != null
+                && LocalDate.now().isAfter(dueDate);
+    }
 }
