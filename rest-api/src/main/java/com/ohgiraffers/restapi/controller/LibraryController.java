@@ -10,6 +10,9 @@ import com.ohgiraffers.restapi.exception.BookAlreadyRentedException;
 import com.ohgiraffers.restapi.exception.BookNotFoundException;
 import com.ohgiraffers.restapi.exception.MemberNotFoundException;
 import com.ohgiraffers.restapi.exception.RentalNotFoundException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -47,16 +50,24 @@ public class LibraryController {
         memberList.add(new MemberDTO(5, "user05", "유리", "yuriii@naver.com", LocalDate.of(2023, 11, 22)));
     }
 
+    @Operation(summary = "회원 목록 조회/검색", description = "전체 회원 목록 조회하거나 회원 이름으로 검색한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "회원 정보 없음")
+    })
     @GetMapping("/members")
     public ResponseEntity<ResponseMessage> getMembers(@RequestParam(required = false) String name) {
 
+        if (name != null) {
+            memberList.stream()
+                    .filter(m -> m.getName().contains(name))
+                    .findFirst()
+                    .orElseThrow(() -> new MemberNotFoundException("존재하는 회원이 없습니다."));
+        }
+
         List<MemberDTO> foundMembers = memberList.stream()
-                .filter(m -> {
-                    if (name != null && !m.getName().contains(name)) {
-                        return false;
-                    }
-                    return true;
-                }).toList();
+                .filter(m -> name == null || m.getName().contains(name))
+                .toList();
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("members", foundMembers);
@@ -66,6 +77,11 @@ public class LibraryController {
         return ResponseEntity.ok(responseMessage);
     }
 
+    @Operation(summary = "회원번호로 조회", description = "회원번호로 회원을 조회한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "회원 정보 없음")
+    })
     @GetMapping("/{memberNo}")
     public ResponseEntity<ResponseMessage> getMemberByMemberNo(@PathVariable int memberNo) {
         MemberDTO foundMember = memberList.stream()
@@ -80,6 +96,11 @@ public class LibraryController {
         return ResponseEntity.ok(responseMessage);
     }
 
+    @Operation(summary = "신규 회원 등록")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "회원 등록 성공"),
+            @ApiResponse(responseCode = "400", description = "회원 등록 실패")
+    })
     @PostMapping("/members")
     public ResponseEntity<Void> createMember(@Valid @RequestBody MemberDTO member) {
         member.setMemberNo(memberList.size() + 1);
@@ -89,6 +110,8 @@ public class LibraryController {
         return ResponseEntity.created(URI.create("/api/v1/library/members/" + member.getMemberNo())).build();
     }
 
+    @Operation(summary = "도서 목록 조회/검색", description = "도서 목록 전체 조회 및 타이틀, 대여상태로 검색 조회")
+    @ApiResponse(responseCode = "200", description = "도서 조회 성공")
     @GetMapping("/books")
     public ResponseEntity<ResponseMessage> getBooks(@RequestParam(required = false) String title,
                                                     @RequestParam(required = false) String status) {
@@ -106,6 +129,11 @@ public class LibraryController {
         return ResponseEntity.ok(responseMessage);
     }
 
+    @Operation(summary = "도서번호로 도서 검색")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "도서 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "도서 조회 실패")
+    })
     @GetMapping("/books/{bookNo}")
     public ResponseEntity<ResponseMessage> getBookByBookNo(@PathVariable int bookNo) {
         BookDTO foundBook = bookList.stream()
@@ -121,6 +149,11 @@ public class LibraryController {
         return ResponseEntity.ok(responseMessage);
     }
 
+    @Operation(summary = "신규 도서 등록")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "도서 등록 성공"),
+            @ApiResponse(responseCode = "400", description = "도서 등록 실패")
+    })
     @PostMapping("/books")
     public ResponseEntity<Void> createBook(@Valid @RequestBody BookDTO book) {
         book.setBookNo(bookList.size() + 1);
@@ -131,6 +164,11 @@ public class LibraryController {
         return ResponseEntity.created(URI.create("/api/v1/library/books/" + book.getBookNo())).build();
     }
 
+    @Operation(summary = "도서번호로 도서 삭제")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "도서 삭제 성공"),
+            @ApiResponse(responseCode = "404", description = "도서 삭제 실패")
+    })
     @DeleteMapping("/books/{bookNo}")
     public ResponseEntity<Void> deleteBook(@PathVariable int bookNo) {
         BookDTO foundBook = bookList.stream()
@@ -144,6 +182,8 @@ public class LibraryController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "대여 목록 조회/검색", description = "대여 목록 전체 조회하거나 회원 번호로 회원별 대여목록 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "대여 목록 조회 성공")
     @GetMapping("/rentals")
     public ResponseEntity<ResponseMessage> getRentals(@RequestParam(required = false) Integer memberNo) {
 
@@ -159,6 +199,12 @@ public class LibraryController {
         return ResponseEntity.ok(responseMessage);
     }
 
+    @Operation(summary = "도서 대여", description = "회원번호와 도서번호로 도서 대여합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "도서 대여 성공"),
+            @ApiResponse(responseCode = "400", description = "도서 대여 실패"),
+            @ApiResponse(responseCode = "409", description = "이미 대여 중인 도서")
+    })
     @PostMapping("/rentals")
     public ResponseEntity<Void> rentBook(@Valid @RequestBody RentalDTO rental) {
 
@@ -193,6 +239,11 @@ public class LibraryController {
         return ResponseEntity.created(URI.create("/api/v1/library/rentals/" + rental.getRentalNo())).build();
     }
 
+    @Operation(summary = "도서 대여 조회", description = "회원번호와 도서번호로 도서 대여합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "도서 대여 성공"),
+            @ApiResponse(responseCode = "404", description = "도서 대여 실패")
+    })
     @GetMapping("/rentals/{rentalNo}")
     public ResponseEntity<ResponseMessage> getRentalBook(@PathVariable int rentalNo) {
         RentalDTO foundRentalBook = rentalList.stream()
@@ -208,6 +259,12 @@ public class LibraryController {
         return ResponseEntity.ok(responseMessage);
     }
 
+    @Operation(summary = "대여 반납", description = "대여번호로 대여 반납합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "대여 반납 성공"),
+            @ApiResponse(responseCode = "404", description = "대여 반납 실패"),
+            @ApiResponse(responseCode = "400", description = "대여 반납 실패(이미 반납된 도서 재요청)")
+    })
     @PatchMapping("/rentals/{rentalNo}/return")
     public ResponseEntity<Void> returnBook(@PathVariable int rentalNo) {
         RentalDTO rental = rentalList.stream()

@@ -2,6 +2,7 @@ package com.ohgiraffers.restapi.dto;
 
 import com.ohgiraffers.restapi.enums.BookStatus;
 import com.ohgiraffers.restapi.enums.RentalStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -16,8 +17,10 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Setter
+@Schema(description = "대여 정보 DTO")
 public class RentalDTO {
 
+    @Schema(description = "대여정보(PK)")
     private Integer rentalNo;
     @NotNull
     private Integer memberNo;

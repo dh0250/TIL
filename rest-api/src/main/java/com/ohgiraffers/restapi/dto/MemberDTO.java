@@ -1,5 +1,6 @@
 package com.ohgiraffers.restapi.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -13,8 +14,10 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Setter
+@Schema(description = "회원 정보 DTO")
 public class MemberDTO {
 
+    @Schema(description = "회원정보(PK)")
     private Integer memberNo;
 
     @NotBlank
