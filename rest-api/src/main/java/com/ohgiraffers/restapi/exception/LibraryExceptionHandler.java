@@ -1,7 +1,6 @@
 package com.ohgiraffers.restapi.exception;
 
 import com.ohgiraffers.restapi.dto.ErrorResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,8 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
-public class
-LibraryExceptionHandler {
+public class LibraryExceptionHandler {
 
     @ExceptionHandler(BookAlreadyRentedException.class)
     public ResponseEntity<ErrorResponse> handleBookAlreadyRented(
@@ -21,7 +19,7 @@ LibraryExceptionHandler {
     ) {
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
-                HttpStatus.CONFLICT.name(),
+                "BOOK_ALREADY_RENTED",
                 exception.getMessage());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
@@ -33,7 +31,7 @@ LibraryExceptionHandler {
     ) {
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.name(),
+                "BOOK_NOT_FOUND",
                 exception.getMessage());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -46,7 +44,7 @@ LibraryExceptionHandler {
     ) {
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.name(),
+                "MEMBER_NOT_FOUND",
                 exception.getMessage());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -58,7 +56,7 @@ LibraryExceptionHandler {
     ) {
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.name(),
+                "RENTAL_NOT_FOUND",
                 exception.getMessage());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -86,7 +84,7 @@ LibraryExceptionHandler {
 
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.name(),
+                "VALIDATION_FAILED",
                 "요청 값 검증에 실패했습니다.",
                 errors
         );

@@ -1,16 +1,13 @@
 package com.ohgiraffers.restapi.dto;
 
-import com.ohgiraffers.restapi.enums.BookStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ohgiraffers.restapi.enums.RentalStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.cglib.core.Local;
-
 import java.time.LocalDate;
 
 @NoArgsConstructor
@@ -31,6 +28,7 @@ public class RentalDTO {
     private LocalDate returnedAt;
     private RentalStatus status;
 
+    @JsonIgnore
     public boolean isOverdue() {
         return status == RentalStatus.RENTED
                 && dueDate != null

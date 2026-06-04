@@ -1,6 +1,7 @@
 package com.ohgiraffers.restapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Getter
 @Setter
+@JsonPropertyOrder({"status", "errorCode", "message", "errors"})
 public class ErrorResponse {
 
     private Integer status;

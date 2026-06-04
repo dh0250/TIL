@@ -15,5 +15,5 @@ public class ResponseMessage {
 
     private Integer status;
     private String message;
-    private Map<String, Object> result;
+    private Map<String, Object> results;
 }

@@ -28,6 +28,6 @@ public class BookDTO {
     private String isbn;
     @Schema(description = "대여 가능 상태", example = "AVAILABLE")
     private BookStatus status;
-    @PastOrPresent(message = "가입일은 현재보다 과거 날짜가 입력 되어야 합니다.")
+    @PastOrPresent(message = "출판일은 현재보다 과거 날짜가 입력 되어야 합니다.")
     private LocalDate publishedAt;
 }
