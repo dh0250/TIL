@@ -63,10 +63,32 @@ public class LibraryExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleException(IllegalArgumentException exception) {
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException exception) {
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.name(),
+                "INVALID_REQUEST",
+                exception.getMessage()
+        );
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(AlreadyReturnedException.class)
+    public ResponseEntity<ErrorResponse> handleAlreadyReturned(AlreadyReturnedException exception) {
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "ALREADY_RETURNED",
+                exception.getMessage()
+        );
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(BookCurrentlyRentedException.class)
+    public ResponseEntity<ErrorResponse> handleBookCurrentlyRented(BookCurrentlyRentedException exception) {
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "BOOK_CURRENTLY_RENTED",
                 exception.getMessage()
         );
 

@@ -1,9 +1,7 @@
 package com.ohgiraffers.restapi.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ohgiraffers.restapi.enums.RentalStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,18 +15,21 @@ import java.time.LocalDate;
 @Schema(description = "대여 정보 DTO")
 public class RentalDTO {
 
-    @Schema(description = "대여정보(PK)")
+    @Schema(description = "대여 번호(PK)")
     private Integer rentalNo;
-    @NotNull
+    @Schema(description = "회원 번호")
     private Integer memberNo;
-    @NotNull
+    @Schema(description = "도서 번호")
     private Integer bookNo;
+    @Schema(description = "대여 날짜")
     private LocalDate rentedAt;
+    @Schema(description = "반납 기한")
     private LocalDate dueDate;
+    @Schema(description = "반납 날짜")
     private LocalDate returnedAt;
+    @Schema(description = "대여 상태")
     private RentalStatus status;
 
-    @JsonIgnore
     public boolean isOverdue() {
         return status == RentalStatus.RENTED
                 && dueDate != null

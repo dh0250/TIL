@@ -1,5 +1,7 @@
 package com.ohgiraffers.restapi.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +13,11 @@ import lombok.Setter;
 @Setter
 public class RentalRequest {
 
-    private int memberNo;
-    private int bookNo;
+    @Schema(description = "회원 번호")
+    @NotNull(message = "회원 번호는 필수 입력 값입니다.")
+    private Integer memberNo;
+
+    @Schema(description = "도서 번호")
+    @NotNull(message = "도서 번호는 필수 입력 값입니다.")
+    private Integer bookNo;
 }

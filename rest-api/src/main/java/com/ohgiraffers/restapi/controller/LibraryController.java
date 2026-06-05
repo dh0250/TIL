@@ -1,15 +1,9 @@
 package com.ohgiraffers.restapi.controller;
 
-import com.ohgiraffers.restapi.dto.BookDTO;
-import com.ohgiraffers.restapi.dto.MemberDTO;
-import com.ohgiraffers.restapi.dto.RentalDTO;
-import com.ohgiraffers.restapi.dto.ResponseMessage;
+import com.ohgiraffers.restapi.dto.*;
 import com.ohgiraffers.restapi.enums.BookStatus;
 import com.ohgiraffers.restapi.enums.RentalStatus;
-import com.ohgiraffers.restapi.exception.BookAlreadyRentedException;
-import com.ohgiraffers.restapi.exception.BookNotFoundException;
-import com.ohgiraffers.restapi.exception.MemberNotFoundException;
-import com.ohgiraffers.restapi.exception.RentalNotFoundException;
+import com.ohgiraffers.restapi.exception.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -25,7 +19,7 @@ import java.util.*;
 
 @Tag(name = "도서관 회원, 도서 대여 관련 api", description = "회원 조회, 등록, 도서 조회, 등록, 대여, 반납 api")
 @RestController
-@RequestMapping("api/v1/library")
+@RequestMapping("/api/v1/library")
 public class LibraryController {
 
     private final List<BookDTO> bookList;
@@ -106,10 +100,21 @@ public class LibraryController {
     public ResponseEntity<ResponseMessage> getBooks(@RequestParam(required = false) String title,
                                                     @RequestParam(required = false) String status) {
 
+        BookStatus bookStatus = null;
+        if (status != null) {
+            try {
+                bookStatus = BookStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                bookStatus = null;
+            }
+        }
+
+        final BookStatus finalBookStatus = bookStatus;
+
         List<BookDTO> foundBooks = bookList.stream()
                 .filter(b -> !b.getStatus().equals(BookStatus.DELETED))
                 .filter(b -> title == null || b.getTitle().contains(title))
-                .filter(b -> status == null || b.getStatus().equals(BookStatus.valueOf(status.toUpperCase())))
+                .filter(b -> finalBookStatus == null || b.getStatus().equals(finalBookStatus))
                 .toList();
 
         Map<String, Object> response = new LinkedHashMap<>();
@@ -128,6 +133,7 @@ public class LibraryController {
     @GetMapping("/books/{bookNo}")
     public ResponseEntity<ResponseMessage> getBookByBookNo(@PathVariable int bookNo) {
         BookDTO foundBook = bookList.stream()
+                .filter(b -> !b.getStatus().equals(BookStatus.DELETED))
                 .filter(book -> book.getBookNo() == bookNo)
                 .findFirst()
                 .orElseThrow(() -> new BookNotFoundException("찾으시는 도서번호가 없습니다."));
@@ -158,7 +164,8 @@ public class LibraryController {
     @Operation(summary = "도서번호로 도서 삭제")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "도서 삭제 성공"),
-            @ApiResponse(responseCode = "404", description = "도서 삭제 실패")
+            @ApiResponse(responseCode = "404", description = "도서 삭제 실패"),
+            @ApiResponse(responseCode = "400", description = "대여 중인 도서 삭제 불가")
     })
     @DeleteMapping("/books/{bookNo}")
     public ResponseEntity<Void> deleteBook(@PathVariable int bookNo) {
@@ -167,7 +174,11 @@ public class LibraryController {
                 .findFirst()
                 .orElseThrow(() -> new BookNotFoundException("도서 번호가 존재하지 않습니다."));
 
-        foundBook.setStatus(BookStatus.DELETED);
+        if (!foundBook.getStatus().equals(BookStatus.RENTED)) {
+            foundBook.setStatus(BookStatus.DELETED);
+        } else {
+            throw new BookCurrentlyRentedException("대여중인 도서는 삭제할 수 없습니다.");
+        }
         //bookList.remove(foundBook);
 
         return ResponseEntity.noContent().build();
@@ -194,18 +205,19 @@ public class LibraryController {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "도서 대여 성공"),
             @ApiResponse(responseCode = "400", description = "도서 대여 실패"),
+            @ApiResponse(responseCode = "404", description = "회원 또는 도서 없음"),
             @ApiResponse(responseCode = "409", description = "이미 대여 중인 도서")
     })
     @PostMapping("/rentals")
-    public ResponseEntity<Void> rentBook(@Valid @RequestBody RentalDTO rental) {
+    public ResponseEntity<Void> rentBook(@Valid @RequestBody RentalRequest rental) {
 
         memberList.stream()
-                .filter(m -> m.getMemberNo() == rental.getMemberNo())
+                .filter(m -> m.getMemberNo().equals(rental.getMemberNo()))
                 .findFirst()
                 .orElseThrow(() -> new MemberNotFoundException("회원이 아닙니다."));
 
-        BookDTO rentalBook = bookList.stream()
-                .filter(b -> rental.getBookNo() == b.getBookNo())
+        BookDTO foundedBook = bookList.stream()
+                .filter(b -> rental.getBookNo().equals(b.getBookNo()))
                 .filter(b -> {
                     if (b.getStatus().equals(BookStatus.RENTED)) {
                         throw new BookAlreadyRentedException("대여중인 도서입니다.");
@@ -220,14 +232,17 @@ public class LibraryController {
                 .findFirst()
                 .orElseThrow(() -> new BookNotFoundException("찾으시는 도서가 없습니다."));
 
-        rentalBook.setStatus(BookStatus.RENTED);
-        rental.setRentalNo(rentalList.size() + 1);
-        rental.setRentedAt(LocalDate.now());
-        rental.setDueDate(LocalDate.now().plusDays(14));
-        rental.setStatus(RentalStatus.RENTED);
-        rentalList.add(rental);
+        RentalDTO rentalBook = new RentalDTO(rentalList.size() + 1,
+                                                        rental.getMemberNo(),
+                                                        rental.getBookNo(),
+                                                        LocalDate.now(),
+                                                        LocalDate.now().plusDays(14),
+                                            null, RentalStatus.RENTED);
 
-        return ResponseEntity.created(URI.create("/api/v1/library/rentals/" + rental.getRentalNo())).build();
+        foundedBook.setStatus(BookStatus.RENTED);
+        rentalList.add(rentalBook);
+
+        return ResponseEntity.created(URI.create("/api/v1/library/rentals/" + rentalBook.getRentalNo())).build();
     }
 
     @Operation(summary = "도서 대여 조회", description = "대여번호로 도서 대여를 조회합니다.")
@@ -258,19 +273,21 @@ public class LibraryController {
     })
     @PatchMapping("/rentals/{rentalNo}/return")
     public ResponseEntity<Void> returnBook(@PathVariable int rentalNo) {
+
         RentalDTO rental = rentalList.stream()
                 .filter(r -> r.getRentalNo() == rentalNo)
                 .findFirst()
                 .orElseThrow(() -> new RentalNotFoundException("대여 번호가 존재하지 않습니다."));
 
+        if (rental.getStatus().equals(RentalStatus.RETURNED)) {
+            throw new AlreadyReturnedException("이미 반납된 도서입니다.");
+        }
+
         BookDTO returnedBook = bookList.stream()
-                .filter(b -> b.getBookNo() == rental.getBookNo())
+                .filter(b -> b.getBookNo().equals(rental.getBookNo()))
                 .findFirst()
                 .orElseThrow(() -> new BookNotFoundException("찾으시는 도서가 존재하지 않습니다"));
 
-        if (rental.getStatus().equals(RentalStatus.RETURNED)) {
-            throw new IllegalArgumentException("이미 반납된 도서입니다.");
-        }
         rental.setStatus(RentalStatus.RETURNED);
         rental.setReturnedAt(LocalDate.now());
 
